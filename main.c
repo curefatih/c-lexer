@@ -153,36 +153,43 @@ bool isBracket(char str)
 /**
  * gets token for given bracket
 */
-void getBracketToken(char **str)
+char *getBracketToken(char ch)
 {
-  switch (**str)
+  char *str;
+  switch (ch)
   {
   case '{':
-    *str = "LeftCurlyBracket";
+    str = "LeftCurlyBracket";
+    return str;
     break;
 
   case '(':
-    *str = "LeftPar";
+    str = "LeftPar";
+    return str;
     break;
 
   case '[':
-    *str = "LeftSquareBracket";
+    str = "LeftSquareBracket";
+    return str;
     break;
 
   case '}':
-    *str = "RightCurlyBracket";
+    str = "RightCurlyBracket";
+    return str;
     break;
 
   case ']':
-    *str = "RightSquareBracket";
+    str = "RightSquareBracket";
+    return str;
     break;
 
   case ')':
-    *str = "RightPar";
+    str = "RightPar";
+    return str;
     break;
 
   default:
-    printf("Error! Cannot get bracket type for '%s'\n", *str);
+    printf("Error! Cannot get bracket type for '%c'\n", ch);
     exit(0);
   }
 }
@@ -334,11 +341,11 @@ int main()
   readFile(file_name, "r", &fp);
 
   printf("The contents of %s file are: \n%s \n", file_name, fp);
-  
-  char new_file_name[] = "app.lex";
-  FILE *newFile = fopen(new_file_name, 'w');
-  traverseCode(fp, newFile);
 
+  char new_file_name[] = "app.lex";
+  FILE *newFile = fopen(new_file_name, "w");
+  traverseCode(fp, newFile);
+  fclose(newFile);
   return 0;
 }
 
@@ -385,6 +392,7 @@ void traverseCode(char *str, FILE *fp)
       if (isStringEnded == false && right == codeLength)
       {
         printf("!STRING NOT ENDED");
+        exit(0);
         left = right;
       }
 
@@ -392,7 +400,8 @@ void traverseCode(char *str, FILE *fp)
       {
         // printf("looking for string: %s, i: %d\n", subStr, i);
         isStringEnded = true;
-        printf("STRINGCONSTANT(%s)\n", subStr);
+        // printf("STRINGCONSTANT(%s)\n", subStr);
+        fprintf(fp, "StringConstant(%s)\n", subStr);
       }
 
       continue;
@@ -404,7 +413,7 @@ void traverseCode(char *str, FILE *fp)
       // printf("comment: %s\n", subStr);
       if (isComment(subStr))
       {
-        printf("COMMENT(%s)\n", subStr);
+        // printf("COMMENT(%s)\n", subStr);
         isCommentEnded = true;
         left = right;
       }
@@ -425,7 +434,8 @@ void traverseCode(char *str, FILE *fp)
     {
       if (isEOL(str[right]))
       {
-        printf("\nEOL(%c)\n", str[right]);
+        // printf("\nEOL(%c)\n", str[right]);
+        fprintf(fp, "EndOfLine\n");
       }
 
       if (isOperatorStart(str[right]))
@@ -438,7 +448,8 @@ void traverseCode(char *str, FILE *fp)
           {
             if (str[right + 1] == '=')
             {
-              printf("\nOPERATOR(%s)\n", subString(str, left, right + 1));
+              // printf("\nOPERATOR(%s)\n", subString(str, left, right + 1));
+              fprintf(fp, "Operator(%s)\n", subString(str, left, right + 1));
               right++;
             }
             else if (str[right + 1] != '=')
@@ -456,16 +467,19 @@ void traverseCode(char *str, FILE *fp)
           if (str[right] == '+' && str[right + 1] == '+')
           {
             right++;
-            printf("\nOPERATOR(%s)", subString(str, left, right));
+            // printf("\nOPERATOR(%s)", subString(str, left, right));
+            fprintf(fp, "Operator(%s)\n", subString(str, left, right));
           }
           else if (str[right] == '-' && str[right + 1] == '-')
           {
             right++;
-            printf("\nOPERATOR(%s)", subString(str, left, right));
+            // printf("\nOPERATOR(%s)", subString(str, left, right));
+            fprintf(fp, "Operator(%s)\n", subString(str, left, right));
           }
           else
           {
-            printf("\nOPERATOR(%c)", str[right]);
+            // printf("\nOPERATOR(%c)", str[right]);
+            fprintf(fp, "Operator(%c)\n", str[right]);
           }
         }
       }
@@ -479,7 +493,11 @@ void traverseCode(char *str, FILE *fp)
         }
         else
         {
-          printf("\nBRACKET");
+          // printf("\nBRACKET");
+          char *bracket = getBracketToken(str[right]);
+          // getBracketToken(bracket);
+          // printf("--> %s", bracket);
+          fprintf(fp, "%s\n", bracket);
         }
       }
 
@@ -490,21 +508,27 @@ void traverseCode(char *str, FILE *fp)
     {
       // printf("\n3-sub:%s, iden: %s", subStr, isValidIdentifier(subStr) ? "true": "fasle");
       if (isKeyword(subStr))
-        printf("\nKeyword(%s)", subStr);
-
+      {
+        fprintf(fp, "Keyword(%s)\n", subStr);
+        // printf("\nKeyword(%s)", subStr);
+      }
       else if (isInteger(subStr))
-        printf("\nIntConst(%s)", subStr);
-
+      {
+        fprintf(fp, "IntConst(%s)\n", subStr);
+        // printf("\nIntConst(%s)", subStr);
+      }
       else if (isValidIdentifier(subStr) && isKeyword(subStr) == false)
       {
         // printf("\n4-sub: ", subStr);
         if (strlen(subStr) > 20)
         {
           printf("\n!ERROR: Identifier cannot be longer thna 20 char.\n");
+          exit(0);
           left = right;
           continue;
         }
-        printf("\nIdentifier(%s)", subStr);
+        // printf("\nIdentifier(%s)", subStr);
+        fprintf(fp, "Identifier(%s)\n", subStr);
       }
 
       left = right;
