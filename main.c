@@ -73,15 +73,25 @@ void toLowerString(char **str)
   *str = tptr;
 }
 
+bool isOperatorStart(char ch)
+{
+  if (ch == '+' || ch == '-' || ch == ':')
+  {
+    return true;
+  }
+
+  return false;
+}
+
 bool isOperator(char *str)
 {
   char *operators[7] = {
-      '+',
       "++",
-      '-',
+      "+",
+      "-",
       "--",
-      '/',
-      '*',
+      "/",
+      "*",
       ":="};
 
   for (int i = 0; i < 7; i++)
@@ -189,11 +199,11 @@ bool isEOL(char str)
 
 bool isComment(char *str)
 {
-}
-
-bool isCommentAllowed(char *str)
-{
-  return true;
+  if (strlen(str) >= 4 && str[0] == '(' && str[1] == '*' && str[(strlen(str) - 2)] == '*' && str[(strlen(str) - 1)] == ')')
+  {
+    return true;
+  }
+  return false;
 }
 
 bool isValidIdentifier(char *str)
@@ -219,6 +229,24 @@ bool isValidIdentifier(char *str)
   }
 
   return (true);
+}
+
+bool isString(char *str)
+{
+  if (str[0] == '"' && str[(strlen(str) - 1)] == '"' && strlen(str) >= 2)
+  {
+    return true;
+  }
+  return false;
+}
+
+bool isStringSign(char ch)
+{
+  if (ch == '"')
+  {
+    return true;
+  }
+  return false;
 }
 
 void readFile(char *filename, char *mode, char **buf)
@@ -260,7 +288,7 @@ void readFile(char *filename, char *mode, char **buf)
 
 bool isDelimiter(char ch)
 {
-  if (ch == ' ' || isBracket(ch))
+  if (ch == ' ' || isBracket(ch) || isOperatorStart(ch) || isEOL(ch))
   {
     return true;
   }
@@ -273,8 +301,8 @@ int main()
   // printf("\n");
   // printf(isKeyword("Break") ? "true" : "false");
   // printf("\n");
-  char x = "+";
-  printf("++ is a operator? : %s", isOperator(&x) ? "true" : "false");
+  // char x = "+";
+  printf("++ is a operator? : %s", isOperator("+") ? "true" : "false");
   printf("\n");
 
   // printf(isInteger("-9") ? "true" : "false");
@@ -293,29 +321,18 @@ int main()
   // printf("validIdentifier: = %s", isValidIdentifier("a_") ? "true" : "false");
   // printf("\n");
 
+  // printf("isString: %s", isString("\" Hello this is a string") ? "true" : "false");
+  // printf("\n");
+  // printf("isStringStart:%s ", isStringStart('"') ? "true" : "false");
+  // printf("\n");
+
+  // printf("isComment: %s", isComment("(*addition *)") ? "true": "false");
+  // printf("\n");
+
+
   char *fp;
   char file_name[] = "app.psi";
   readFile(file_name, "r", &fp);
-
-  // fscanf(fp, "%s", buff);
-  // fgets(buff, 255, (FILE *)fp);
-  // printf("2: %s\n", buff);
-  // printf("1 : %s\n", buff);
-
-  // printf("", *fp);
-
-  // char ch;
-
-  // char *line = NULL;
-
-  // int i = 1;
-  // while ((ch = fgetc(fp)) != EOF)
-  // {
-  //   printf("\n%d -  %c", i, ch);
-  //   i++;
-  // }
-
-  // printf("\n");
 
   printf("The contents of %s file are: \n%s \n", file_name, fp);
 
@@ -327,8 +344,8 @@ int main()
 void traverseCode(char *str)
 {
   int strCounter = 0;
-  bool isCommentEnded,
-      isStringEnded = true;
+  bool isCommentEnded = true;
+  bool isStringEnded = true;
 
   int right = 0;
   int left = 0;
@@ -360,188 +377,134 @@ void traverseCode(char *str)
 
   int i = 0;
   // while (right <= codeLength && left <= right)
-  while (i <= 10)
+  while (right <= codeLength)
   {
-    //   char *subStr = subString(str, left, right - 1);
-    //   printf("right: %d, left: %d ", right, left);
-    //   printf("\nsubStr: %s\n__________\n", subStr);
 
-    //   if (isValidIdentifier(subStr))
-    //   {
-    //     currentType = 1;
-    //   }
-    //   else if (isInteger(subStr))
-    //   {
-    //     currentType = 2;
-    //   }
-    //   else if (isOperator(subStr))
-    //   {
-    //     currentType = 3;
-    //   }
-    //   else if (isBracket(subStr))
-    //   {
-    //     currentType = 4;
-    //     // if its comment
-    //   }
-    //   else if (isEOL(subStr))
-    //   {
-    //     currentType = 7;
-    //   }
-    //   else
-    //   {
-    //     currentType = 0;
-    //   }
-
-    //   // change if its unknown
-    //   if (lastType == 0)
-    //     lastType = currentType;
-
-    //   printf("currentType: %d, lastType: %d ", currentType, lastType);
-
-    //   // check if changes type
-    //   if (lastType != currentType)
-    //   {
-    //     if (lastType == 1 && (currentType != 2))
-    //     {
-    //       printf("\n%s is a identifier or keyword \n", subStr);
-    //       left = right - 1;
-    //     }
-    //   }
-
-    //   right++;
-    //   i++;
-    // }
-
-    // if (lastType == 0)
-    // {
-    //   right++;
-    //   continue;
-    // }
-
-    /**
-     * types:
-     * identifier | keyword : 1
-     * operator: 2
-     * bracket | comment : 3
-     * integer: 4
-     * endofline: 5
-    */
-    // right++;
-
-    // char *subStr = subString(str, left, right - 1);
-
-    // // if (str[right] == ' ' || str[right] == ':')
-    // // {
-    // //   left = right;
-    // //   right++;
-    // //   continue;
-    // // }
-
-    // if (isValidIdentifier(subStr) || isKeyword(subStr))
-    // {
-    //   printf("\nvalid identifier | keyword: %s", subStr);
-    //   currentType = 1;
-    // }
-    // else if (isOperator(subStr))
-    // {
-    //   printf("\nvalid operator: %s", subStr);
-    //   currentType = 2;
-    // }
-    // else if (isBracket(str[right])) //comment not implemented yet
-    // {
-    //   printf("\nvalid bracket | comment: %s", subStr);
-    //   currentType = 3;
-    // }
-    // else if (isInteger(subStr))
-    // {
-    //   currentType = 4;
-    // }
-    // else if (isEOL(str[right]))
-    // {
-    //   currentType = 5;
-    // }
-    // else
-    // {
-    //   currentType = 0;
-    // }
-    // printf("\nsubStr: %s", subStr);
-    // printf("\n1-loop: %d, right: %d, left: %d, lastType: %d, currentType: %d", i, right, left, lastType, currentType);
-
-    // if (currentType != lastType)
-    // {
-    //   lastType = currentType;
-    //   // left = right;
-
-    //   if (currentType == 5 || currentType == 3)
-    //   {
-    //     left = right;
-    //   }
-
-    //   continue;
-    // }
-
-    // printf("\nsubStr: %s", subStr);
-    // printf("\n2-loop: %d, right: %d, left: %d, lastType: %d, currentType: %d", i, right, left, lastType, currentType);
-    // i++;
-    // printf("\n");
-
-    char *subStr = subString(str, left, right - 1);
+    char *subStr = subString(str, left, right);
     // printf("0\n");
 
-    // printf("str[right] = %d \nright: %d \n", str[right], right);
+    // printf("str[right] = %c \nright: %d \n", str[right], right);
+    // printf("\nright: %d, left: %d \n", right, left);
 
-    if (str[right] != ' ' || !isOperator(subStr) || !isBracket(str[right]) || isEOL(str[right]))
+    // if(isStringEnded == false || isCommentEnded == false){
+    //   right++;
+    // }
+    // printf("1\n");
+    if (isStringSign(str[right]) || isStringEnded == false)
     {
+      // printf("looking for string: %s, i: %d\n", subStr, i);
+      if (isStringEnded == true)
+      {
+        isStringEnded = false;
+      }
+      if (isStringEnded == false && right == codeLength)
+      {
+        printf("!STRING NOT ENDED");
+      }
+
+      if (isString(subStr))
+      {
+        // printf("looking for string: %s, i: %d\n", subStr, i);
+        isStringEnded = true;
+        printf("STRINGCONSTANT(%s)\n", subStr);
+      }
+
       right++;
-      printf("1\n");
+      continue;
     }
 
-    if (str[right] == ' ' || isOperator(subStr) || isBracket(str[right]) || isEOL(str[right]))
+    if (isCommentEnded == false)
     {
-      printf("2\n");
+      // printf("comment: %s\n", subStr);
+      if (isComment(subStr))
+      {
+        printf("COMMENT(%s)\n", subStr);
+        isCommentEnded = true;
+      }
+      else if (isComment(subStr) == false && right == codeLength)
+      {
+        printf("!COMMENT NOT ENDED, str: %s \n", subStr);
+      }
+
+      right++;
+      continue;
+    }
+
+    if (isDelimiter(str[right]) == false)
+    {
+      right++;
+    }
+
+    if (isDelimiter(str[right]) && left == right)
+    {
+      if (isEOL(str[right]))
+      {
+        printf("\nEOL(%c), i: %d\n", str[right], i);
+      }
+
+      if (isOperatorStart(str[right]))
+      {
+        // printf("\noperator starts i : %d\n ", i);
+        if (str[right] == ':')
+        {
+
+          if (right + 1 <= codeLength)
+          {
+            if (str[right + 1] == '=')
+            {
+              printf("\nOPERATOR(%s)\n", subString(str, left, right + 1));
+              right++;
+            }
+            else if (str[right + 1] != '=')
+            {
+              printf("\n!ASSIGNMENT ERROR");
+            }
+          }
+          else
+          {
+            printf("\n!ASSIGNMENT ERROR");
+          }
+        }
+        else if (str[right] != ':' && right + 1 <= codeLength)
+        {
+          if (str[right] == '+' && str[right + 1] == '+')
+          {
+            right++;
+            printf("\nOPERATOR(%s)", subString(str, left, right + 1));
+          }
+          else if (str[right] == '-' && str[right + 1] == '-')
+          {
+            right++;
+            printf("\nOPERATOR(%s)", subString(str, left, right + 1));
+          }
+          else
+          {
+            printf("\nOPERATOR(%c)", str[right]);
+          }
+        }
+      }
 
       if (isBracket(str[right]))
       {
-        printf("\nbracket: %s", &str[right]);
-      }
-
-      if (isOperator(subStr))
-      {
-        if (str[right] == '+' || str[right] == ':')
+        if (right + 1 <= codeLength && str[right + 1] == '*')
         {
-          right++;
+          isCommentEnded = false;
           continue;
         }
         else
         {
-          printf("\noperator: %s\n", subStr);
+          printf("BRACKET");
         }
-      }
-
-      if (isEOL(str[right]))
-      {
-        printf("\nEOL: %s \n", subStr);
       }
 
       right++;
       left = right;
     }
-    else if ((str[right] == ' ' || isOperator(subStr) || isBracket(str[right])) && left != right)
+    else if (isDelimiter(str[right]) && left != right || (right == codeLength && left != right))
     {
-      printf("3");
-
-      if (isValidIdentifier(subStr))
-      {
-        printf("\nidentifier | keyword: %s", subStr);
-      }
-      else if (isInteger(subStr))
-      {
-        printf("\ninteger: %s", subStr);
-      }
+      // printf("\n333 - i: %d\n", i);
       left = right;
     }
-
-    i++;
   }
   return;
 }
