@@ -215,13 +215,13 @@ bool isValidIdentifier(char *str)
     // printf("\n%s", !(str[i] <= 'Z' && str[i] >= 'A') ? "true" : "false");
     // printf("\n%s", str[i] != '_' ? "true" : "false");
     // printf("\n%s", !(str[i] <= 'z' && str[i] >= 'a') || !(str[i] <= 'Z' && str[i] >= 'A') || str[i] != '_' ? "true" : "false");
-    if (!(str[i] <= 'z' && str[i] >= 'a') && !(str[i] <= 'Z' && str[i] >= 'A') && str[i] != '_')
+    if (!(str[i] <= 'z' && str[i] >= 'a') && !(str[i] <= 'Z' && str[i] >= 'A') && str[i] != '_' && !isInteger(&str[i]))
     {
       return false;
     }
   }
 
-  if ((str[0] <= 'z' && str[0] >= 'a') && (str[0] <= 'Z' && str[0] >= 'A') || str[0] == '_')
+  if ((str[0] <= 'z' && str[0] >= 'a') && (str[0] <= 'Z' && str[0] >= 'A') || str[0] == '_' || isInteger(&str[0]))
   {
     // printf("\n%s", !(str[0] <= 'z' && str[0] >= 'a') ? "true" : "false");
     // printf("\n%s", !(str[0] <= 'Z' && str[0] >= 'A') ? "true" : "false");
@@ -305,8 +305,8 @@ int main()
   printf("++ is a operator? : %s", isOperator("+") ? "true" : "false");
   printf("\n");
 
-  // printf(isInteger("-9") ? "true" : "false");
-  // printf("\n");
+  printf("isinteger %s", isInteger("123") ? "true" : "false");
+  printf("\n");
 
   // char str = '}';
   // char *gb = &str;
@@ -318,8 +318,8 @@ int main()
   // printf("isEOL: = %s", isEOL(";") ? "true" : "false");
   // printf("\n");
 
-  // printf("validIdentifier: = %s", isValidIdentifier("a_") ? "true" : "false");
-  // printf("\n");
+  printf("validIdentifier: = %s", isValidIdentifier("_while") ? "true" : "false");
+  printf("\n");
 
   // printf("isString: %s", isString("\" Hello this is a string") ? "true" : "false");
   // printf("\n");
@@ -328,7 +328,6 @@ int main()
 
   // printf("isComment: %s", isComment("(*addition *)") ? "true": "false");
   // printf("\n");
-
 
   char *fp;
   char file_name[] = "app.psi";
@@ -397,9 +396,12 @@ void traverseCode(char *str)
       {
         isStringEnded = false;
       }
+
+      right++;
       if (isStringEnded == false && right == codeLength)
       {
         printf("!STRING NOT ENDED");
+        left = right;
       }
 
       if (isString(subStr))
@@ -409,24 +411,24 @@ void traverseCode(char *str)
         printf("STRINGCONSTANT(%s)\n", subStr);
       }
 
-      right++;
       continue;
     }
 
     if (isCommentEnded == false)
     {
+      right++;
       // printf("comment: %s\n", subStr);
       if (isComment(subStr))
       {
         printf("COMMENT(%s)\n", subStr);
         isCommentEnded = true;
+        left = right;
       }
-      else if (isComment(subStr) == false && right == codeLength)
+      else if (isComment(subStr) == false && right - 1 == codeLength)
       {
         printf("!COMMENT NOT ENDED, str: %s \n", subStr);
       }
 
-      right++;
       continue;
     }
 
@@ -439,7 +441,7 @@ void traverseCode(char *str)
     {
       if (isEOL(str[right]))
       {
-        printf("\nEOL(%c), i: %d\n", str[right], i);
+        printf("\nEOL(%c)\n", str[right]);
       }
 
       if (isOperatorStart(str[right]))
@@ -493,7 +495,7 @@ void traverseCode(char *str)
         }
         else
         {
-          printf("BRACKET");
+          printf("BRACKET\n");
         }
       }
 
@@ -502,7 +504,18 @@ void traverseCode(char *str)
     }
     else if (isDelimiter(str[right]) && left != right || (right == codeLength && left != right))
     {
-      // printf("\n333 - i: %d\n", i);
+      // printf("\n3 -sub: %s\n", subStr);
+
+      if (isKeyword(subStr))
+        printf("\nKeyword(%s)", subStr);
+
+      else if (isInteger(subStr))
+        printf("\nIntConst(%s)", subStr);
+
+      else if (isValidIdentifier(subStr) && isKeyword(subStr) == false)
+        printf("\nIdentifier(%s)", subStr);
+      
+
       left = right;
     }
   }
