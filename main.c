@@ -6,7 +6,7 @@
 
 void toLowerString(char **str);
 
-void traverseCode(char *str);
+void traverseCode(char *str, FILE *fp);
 
 char *subString(char *str, int left, int right);
 
@@ -288,7 +288,7 @@ void readFile(char *filename, char *mode, char **buf)
 
 bool isDelimiter(char ch)
 {
-  if (ch == ' ' || isBracket(ch) || isOperatorStart(ch) || isEOL(ch))
+  if (ch == ' ' || ch == '\n' || isBracket(ch) || isOperatorStart(ch) || isEOL(ch))
   {
     return true;
   }
@@ -318,7 +318,7 @@ int main()
   // printf("isEOL: = %s", isEOL(";") ? "true" : "false");
   // printf("\n");
 
-  printf("validIdentifier: = %s", isValidIdentifier("_while") ? "true" : "false");
+  printf("validIdentifier: = %s", isValidIdentifier("while12") ? "true" : "false");
   printf("\n");
 
   // printf("isString: %s", isString("\" Hello this is a string") ? "true" : "false");
@@ -334,13 +334,15 @@ int main()
   readFile(file_name, "r", &fp);
 
   printf("The contents of %s file are: \n%s \n", file_name, fp);
-
-  traverseCode(fp);
+  
+  char new_file_name[] = "app.lex";
+  FILE *newFile = fopen(new_file_name, 'w');
+  traverseCode(fp, newFile);
 
   return 0;
 }
 
-void traverseCode(char *str)
+void traverseCode(char *str, FILE *fp)
 {
   int strCounter = 0;
   bool isCommentEnded = true;
@@ -351,24 +353,6 @@ void traverseCode(char *str)
   int codeLength = strlen(str);
 
   printf("right intitial:%d\n", right);
-
-  /**
-   * lastType for knowing posible type for next token.
-   * To find next token we store last type before current.
-   * _____________________________________________________
-   * 
-   * Unknown: 0
-   * Identifier: 1
-   * Integer: 2
-   * Operator: 3
-   * Brackets: 4
-   * StringContant: 5
-   * Keyword: 6
-   * EndOfLine: 7
-   * Comment: 8
-  */
-  int lastType = 0;
-  int currentType = 0;
 
   printf("_________\nstr initial: %s", str);
 
@@ -472,12 +456,12 @@ void traverseCode(char *str)
           if (str[right] == '+' && str[right + 1] == '+')
           {
             right++;
-            printf("\nOPERATOR(%s)", subString(str, left, right + 1));
+            printf("\nOPERATOR(%s)", subString(str, left, right));
           }
           else if (str[right] == '-' && str[right + 1] == '-')
           {
             right++;
-            printf("\nOPERATOR(%s)", subString(str, left, right + 1));
+            printf("\nOPERATOR(%s)", subString(str, left, right));
           }
           else
           {
@@ -495,7 +479,7 @@ void traverseCode(char *str)
         }
         else
         {
-          printf("BRACKET\n");
+          printf("\nBRACKET");
         }
       }
 
@@ -504,8 +488,7 @@ void traverseCode(char *str)
     }
     else if (isDelimiter(str[right]) && left != right || (right == codeLength && left != right))
     {
-      // printf("\n3 -sub: %s\n", subStr);
-
+      // printf("\n3-sub:%s, iden: %s", subStr, isValidIdentifier(subStr) ? "true": "fasle");
       if (isKeyword(subStr))
         printf("\nKeyword(%s)", subStr);
 
@@ -513,8 +496,16 @@ void traverseCode(char *str)
         printf("\nIntConst(%s)", subStr);
 
       else if (isValidIdentifier(subStr) && isKeyword(subStr) == false)
+      {
+        // printf("\n4-sub: ", subStr);
+        if (strlen(subStr) > 20)
+        {
+          printf("\n!ERROR: Identifier cannot be longer thna 20 char.\n");
+          left = right;
+          continue;
+        }
         printf("\nIdentifier(%s)", subStr);
-      
+      }
 
       left = right;
     }
