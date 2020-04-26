@@ -32,16 +32,12 @@ bool isKeyword(char *str)
       "static",
       "while"};
 
-  // char *tolower_s = &str;
   toLowerString(&str);
-  // printf("tolower: %s, address: %u \n", str, *tolower_s);
-  // printf("org: %s, address: %u \n", str, *str);
 
   for (int i = 0; i < 18; i++)
   {
     if (strcmp(str, keywords[i]) == 0)
     {
-      // printf("-> %s == %s\n", str, keywords[i]);
       return true;
     }
   }
@@ -55,21 +51,13 @@ bool isKeyword(char *str)
 void toLowerString(char **str)
 {
   char *temp = strdup(*str); // make a copy
-  // printf("str: %s \n", *str);
-
   strcpy(temp, *str);
-  // printf("temp: %s \n", temp);
   char *tptr = (char *)temp;
-
   while (*temp)
   {
     *temp = tolower(*temp);
-    // printf("%s \n", tptr);
     temp++;
   }
-  // printf("tp: %s \n", tptr);
-  // printf("temp: %s \n", temp);
-
   *str = tptr;
 }
 
@@ -96,7 +84,6 @@ bool isOperator(char *str)
 
   for (int i = 0; i < 7; i++)
   {
-    // printf("-> %s == %s\n", str, operators[i]);
     if (strcmp(str, operators[i]) == 0)
     {
       return true;
@@ -215,13 +202,8 @@ bool isComment(char *str)
 
 bool isValidIdentifier(char *str)
 {
-  // printf("%d", str[0]);
   for (int i = 0; i < strlen(str); i++)
   {
-    // printf("\n%s", !(str[i] <= 'z' && str[i] >= 'a') ? "true" : "false");
-    // printf("\n%s", !(str[i] <= 'Z' && str[i] >= 'A') ? "true" : "false");
-    // printf("\n%s", str[i] != '_' ? "true" : "false");
-    // printf("\n%s", !(str[i] <= 'z' && str[i] >= 'a') || !(str[i] <= 'Z' && str[i] >= 'A') || str[i] != '_' ? "true" : "false");
     if (!(str[i] <= 'z' && str[i] >= 'a') && !(str[i] <= 'Z' && str[i] >= 'A') && str[i] != '_' && !isInteger(&str[i]))
     {
       return false;
@@ -230,8 +212,6 @@ bool isValidIdentifier(char *str)
 
   if ((str[0] <= 'z' && str[0] >= 'a') && (str[0] <= 'Z' && str[0] >= 'A') || str[0] == '_' || isInteger(&str[0]))
   {
-    // printf("\n%s", !(str[0] <= 'z' && str[0] >= 'a') ? "true" : "false");
-    // printf("\n%s", !(str[0] <= 'Z' && str[0] >= 'A') ? "true" : "false");
     return (false);
   }
 
@@ -274,7 +254,7 @@ void readFile(char *filename, char *mode, char **buf)
   numbytes = ftell(fp);
 
   // reset the fp position indicator to
-  //the beginning of the fp
+  // the beginning of the fp
   fseek(fp, 0L, SEEK_SET);
 
   // grab sufficient memory for the
@@ -303,49 +283,63 @@ bool isDelimiter(char ch)
   return false;
 }
 
+void test()
+{
+  printf("\n");
+  printf("'Break' is a keyword : %s", isKeyword("Break") ? "true" : "false");
+  printf("\n");
+
+  printf("'++' is a operator : %s\n", isOperator("+") ? "true" : "false");
+  printf("'+2' is a operator : %s", isOperator("+2") ? "true" : "false");
+  printf("\n");
+
+  printf("'123' is a integer : %s\n", isInteger("123") ? "true" : "false");
+  printf("'1a2' is a integer : %s", isInteger("1a2") ? "true" : "false");
+  printf("\n");
+
+  char str = '}';
+  bool is_bracket = isBracket(str);
+  char *bracket = getBracketToken(str);
+  printf("'%c' token : %s", str, is_bracket ? bracket : "false");
+  printf("\n");
+
+  printf("';' is EOL: = %s\n", isEOL(';') ? "true" : "false");
+  printf("'-' is EOL: = %s", isEOL('-') ? "true" : "false");
+  printf("\n");
+
+  printf("'while12' valid identifier : = %s\n", isValidIdentifier("while12") ? "true" : "false");
+  printf("'12asd' is a valid identifier : = %s", isValidIdentifier("while") ? "true" : "false");
+  printf("\n");
+
+  printf("'\" Hello this is a string' is a string : %s\n", isString("\" Hello this is a string but not ended") ? "true" : "false");
+  printf("'\" Hello this is a string\"' is a string : %s", isString("\" Hello this is a string\"") ? "true" : "false");
+  printf("\n");
+
+  printf("'\"' is a string sign : %s \n", isStringSign('"') ? "true" : "false");
+  printf("'-' is a string sign : %s ", isStringSign('-') ? "true" : "false");
+  printf("\n");
+
+  printf("'(*comment *)' is a comment : %s\n", isComment("(*comment *)") ? "true" : "false");
+  printf("'(*not comment' is a comment : %s", isComment("(*not comment") ? "true" : "false");
+  printf("\n");
+}
+
 int main()
 {
-  // printf("\n");
-  // printf(isKeyword("Break") ? "true" : "false");
-  // printf("\n");
-  // char x = "+";
-  printf("++ is a operator? : %s", isOperator("+") ? "true" : "false");
-  printf("\n");
-
-  printf("isinteger %s", isInteger("123") ? "true" : "false");
-  printf("\n");
-
-  // char str = '}';
-  // char *gb = &str;
-  // bool is_bracket = isBracket(str);
-  // getBracketToken(&gb);
-  // printf("%s\n", is_bracket ? gb : "false");
-  // printf("\n");
-
-  // printf("isEOL: = %s", isEOL(";") ? "true" : "false");
-  // printf("\n");
-
-  printf("validIdentifier: = %s", isValidIdentifier("while12") ? "true" : "false");
-  printf("\n");
-
-  // printf("isString: %s", isString("\" Hello this is a string") ? "true" : "false");
-  // printf("\n");
-  // printf("isStringStart:%s ", isStringStart('"') ? "true" : "false");
-  // printf("\n");
-
-  // printf("isComment: %s", isComment("(*addition *)") ? "true": "false");
-  // printf("\n");
-
+  printf("\n\nFunction test start ______\n");
+  test();
+  printf("\nFunction test end ________\n\n");
   char *fp;
-  char file_name[] = "app.psi";
+  char file_name[] = "code.psi";
   readFile(file_name, "r", &fp);
 
   printf("The contents of %s file are: \n%s \n", file_name, fp);
 
-  char new_file_name[] = "app.lex";
+  char new_file_name[] = "code.lex";
   FILE *newFile = fopen(new_file_name, "w");
   traverseCode(fp, newFile);
   fclose(newFile);
+  printf("Done!\n");
   return 0;
 }
 
@@ -359,30 +353,21 @@ void traverseCode(char *str, FILE *fp)
   int left = 0;
   int codeLength = strlen(str);
 
-  printf("right intitial:%d\n", right);
+  // printf("right intitial:%d\n", right);
 
-  printf("_________\nstr initial: %s", str);
+  // printf("_________\nstr initial: %s", str);
 
-  printf("\nright: %d, left: %d, codeLength: %d\n", right, left, codeLength);
+  // printf("\nright:i %d, left: %d, codeLength: %d\n", right, left, codeLength);
 
-  int i = 0;
-  // while (right <= codeLength && left <= right)
   while (right <= codeLength)
   {
 
     char *subStr = subString(str, left, right);
-    // printf("0\n");
 
     // printf("str[right] = %c \nright: %d \n", str[right], right);
     // printf("\nright: %d, left: %d \n", right, left);
-
-    // if(isStringEnded == false || isCommentEnded == false){
-    //   right++;
-    // }
-    // printf("1\n");
     if (isStringSign(str[right]) || isStringEnded == false)
     {
-      // printf("looking for string: %s, i: %d\n", subStr, i);
       if (isStringEnded == true)
       {
         isStringEnded = false;
@@ -391,14 +376,13 @@ void traverseCode(char *str, FILE *fp)
       right++;
       if (isStringEnded == false && right == codeLength)
       {
-        printf("!STRING NOT ENDED");
+        printf("!ERROR: String not ended.");
         exit(0);
         left = right;
       }
 
       if (isString(subStr))
       {
-        // printf("looking for string: %s, i: %d\n", subStr, i);
         isStringEnded = true;
         // printf("STRINGCONSTANT(%s)\n", subStr);
         fprintf(fp, "StringConstant(%s)\n", subStr);
@@ -419,7 +403,7 @@ void traverseCode(char *str, FILE *fp)
       }
       else if (isComment(subStr) == false && right - 1 == codeLength)
       {
-        printf("!COMMENT NOT ENDED, str: %s \n", subStr);
+        printf("!ERROR: Comment not ended\n");
       }
 
       continue;
@@ -454,12 +438,12 @@ void traverseCode(char *str, FILE *fp)
             }
             else if (str[right + 1] != '=')
             {
-              printf("\n!ASSIGNMENT ERROR");
+              printf("\n!Warning: Assignment may be used wrong.\n");
             }
           }
           else
           {
-            printf("\n!ASSIGNMENT ERROR");
+            printf("\n!Warning: Assignment may be used wrong.\n");
           }
         }
         else if (str[right] != ':' && right + 1 <= codeLength)
@@ -493,9 +477,7 @@ void traverseCode(char *str, FILE *fp)
         }
         else
         {
-          // printf("\nBRACKET");
           char *bracket = getBracketToken(str[right]);
-          // getBracketToken(bracket);
           // printf("--> %s", bracket);
           fprintf(fp, "%s\n", bracket);
         }
@@ -547,4 +529,5 @@ char *subString(char *str, int left, int right)
     subStr[i - left] = str[i];
   subStr[right - left + 1] = '\0';
   return (subStr);
+
 }
